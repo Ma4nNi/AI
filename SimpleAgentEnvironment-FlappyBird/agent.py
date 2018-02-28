@@ -25,7 +25,7 @@ class SimpleAgent:
         #If its here it should be in the middle
         pipeGap = gameState['next_pipe_bottom_y'] - gameState['next_pipe_top_y']
         print("In the middle of both pipes: ",gameState['player_y']," pipe ", gameState['next_pipe_bottom_y'],gameState['next_pipe_top_y']," with speed: ",gameState['player_vel'])
-        if(gameState['player_y']+2*gameState['player_vel'] > gameState['next_pipe_bottom_y']):
+        if(gameState['player_y']+2*gameState['player_vel'] > gameState['next_pipe_bottom_y']-20):
             print("current thing: ",gameState['player_y']," bottom pipe ", gameState['next_pipe_bottom_y'],"top pipe ", gameState['next_pipe_top_y'])
             return True
             

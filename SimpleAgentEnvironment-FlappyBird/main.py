@@ -22,3 +22,4 @@ for f in range(nb_frames):
 	obs = p.getScreenRGB()
 	action = myAgent.chooseAction(game.getGameState())
 	p.act(action)
+#	p.act(None)
