@@ -17,12 +17,8 @@ nb_frames = 1000
 
 for f in range(nb_frames):
 	if p.game_over(): #check if the game is over
-		#exit()
-		p.reset_game()
+		exit()
+		#p.reset_game()
 	obs = p.getScreenRGB()
 	action = myAgent.chooseAction(game.getGameState())
-	if(f%2==0):
-		print(action)
-		p.act(action)
-	else:
-		p.act(None)
+	p.act(action)
