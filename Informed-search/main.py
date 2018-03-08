@@ -44,4 +44,5 @@ graph.addNeighbors(mehadia, WeightedEdge(drobeta,75))
 graph.addNeighbors(drobeta, WeightedEdge(craiova,120))
 
 
-print("Greedy search: ",graph.aStarSearch())
+print("Greedy search: ",graph.greedySearch())
+print("AStar search: ", graph.aStarSearch())

@@ -1,4 +1,3 @@
-import sys
 from weighted_edge import *
 
 class WeightedGraph:
@@ -17,7 +16,7 @@ class WeightedGraph:
             node.edges.append(edge)
             edge.destination.edges.append(WeightedEdge(node,edge.weight))
             
-    def greedySearch(self):
+    def greedySearch(self, verbose=False):
         visited_node_list = []
         shortes_path  = []
         current_node = self.root
@@ -26,19 +25,24 @@ class WeightedGraph:
         while(current_node.data > 0 and len(current_node.edges)>0): #current_node.data> 0 is if we arent on the goal city
             lowest_cost_node = None
             visited_node_amount = 0
-            print("Checking ", current_node.name, current_node.data)
-            print("visited nodes:", visited_node_list)
+            if(verbose):
+                print("Checking ", current_node.name, current_node.data)
+                print("visited nodes:", visited_node_list)
             for edge in current_node.edges:
-                print("\tEdge: ",edge.destination.name)
+                if(verbose):
+                    print("\tEdge: ",edge.destination.name)
                 if(edge.destination.name in visited_node_list):#node exists
-                    print("\twas already visited")
+                    if(verbose):
+                        print("\twas already visited")
                     visited_node_amount+=1
                     continue
                 if(lowest_cost_node is None): #first node visited
-                    print("\twas the first node visited")
+                    if(verbose):
+                        print("\twas the first node visited")
                     lowest_cost_node = edge.destination
                 elif(lowest_cost_node.data > edge.destination.data):
-                    print("\t had a better cost than", lowest_cost_node.name)
+                    if(verbose):
+                        print("\t had a better cost than", lowest_cost_node.name)
                     lowest_cost_node = edge.destination
                 visited_node_list.append(edge.destination.name)
             if(visited_node_amount == len(current_node.edges)):
@@ -47,7 +51,7 @@ class WeightedGraph:
             current_node = lowest_cost_node
         return shortes_path
 
-    def aStarSearch(self):
+    def aStarSearch(self, verbose=False):
         visited_node_list = []
         shortes_path  = []
         current_node = self.root
@@ -56,21 +60,26 @@ class WeightedGraph:
         while(current_node.data > 0 and len(current_node.edges)>0): #current_node.data> 0 is if we arent on the goal city
             lowest_cost_node = None
             visited_node_amount = 0
-            print("Checking ", current_node.name, current_node.data)
-            print("visited nodes:", visited_node_list)
+            if(verbose):
+                print("Checking ", current_node.name, current_node.data)
+                print("visited nodes:", visited_node_list)
             routeCost=0
             for edge in current_node.edges:
-                print("\tEdge: ",edge.destination.name)
+                if(verbose):
+                    print("\tEdge: ",edge.destination.name)
                 if(edge.destination.name in visited_node_list):#node exists
-                    print("\twas already visited")
+                    if(verbose):
+                        print("\twas already visited")
                     visited_node_amount+=1
                     continue
                 if(lowest_cost_node is None): #first node visited
-                    print("\twas the first node visited")
+                    if(verbose):
+                        print("\twas the first node visited")
                     lowest_cost_node = edge.destination
                     routeCost = edge.weight
                 elif(lowest_cost_node.data+routeCost > edge.destination.data+edge.weight):
-                    print("\t had a better cost than", lowest_cost_node.name)
+                    if(verbose):
+                        print("\t had a better cost than", lowest_cost_node.name)
                     lowest_cost_node = edge.destination
                 visited_node_list.append(edge.destination.name)
             if(visited_node_amount == len(current_node.edges)):
