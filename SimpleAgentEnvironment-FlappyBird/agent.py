@@ -1,5 +1,6 @@
 import random
 
+
 class SimpleAgent:
     def __init__(self, envVariables ):
         self.env=envVariables

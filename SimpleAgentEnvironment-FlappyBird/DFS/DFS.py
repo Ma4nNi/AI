@@ -1,5 +1,10 @@
-from FlappyNode import FlappyNode
 import copy
+class FlappyNode:
+    def __init__(self,name, neighbors, game_state):
+        self.neighbors=neighbors
+        self.node_name=name
+        self.data=game_state
+ 
 
 horizontal_frame_displacement = 4 #amount of horizontal pixels moved per frame
 jumping_power=8 #the speed obtained when jumping
@@ -26,27 +31,40 @@ def create_test_graph():
     return flappy_graph 
 
 def create_next_nodes(graph,current_node,steps, frame):
-    if(frame>5):
+    if(frame>15):
         return
-    nodes_name = 'N'+str(frame)
+    nodes_name = current_node.node_name+str(frame)
     idle_game_state = copy.deepcopy(current_node.data)
     jumping_game_state = copy.deepcopy(current_node.data)
     idle_game_state['player_vel']+=1
-    idle_game_state['dist_to_next_pipe']-=horizontal_frame_displacement
+    idle_game_state['next_pipe_dist_to_player']-=horizontal_frame_displacement
     jumping_game_state['player_vel']= -1*jumping_power
+    jumping_game_state['next_pipe_dist_to_player']-=horizontal_frame_displacement
     node_idle = FlappyNode(nodes_name+'I',[],idle_game_state)
     node_jump = FlappyNode(nodes_name+'J',[],idle_game_state)
+    current_node.neighbors.append(node_idle.node_name)
+    current_node.neighbors.append(node_jump.node_name)
+    graph[node_idle.node_name] = node_idle
+    graph[node_jump.node_name] = node_jump
+    create_next_nodes(graph,node_idle,steps,frame+1)
+    create_next_nodes(graph,node_jump,steps,frame+1)
 
 def generate_flappy_graph(game_state):
     flappy_graph={
         'R' : FlappyNode('R',[],game_state)
     }
-    distance_to_next_pipe = game_state['dist_to_next_pipe']
+    #distance_to_next_pipe = game_state['next_pipe_dist_to_player']
     current_frame = 1
     create_next_nodes(flappy_graph, flappy_graph['R'],[],current_frame)
+    print("This is the current GRAPH:")
+    for key, value in flappy_graph.items() :
+        print (key, value.neighbors)
+    return flappy_graph
         
 
-
-flappy_graph = create_test_graph()
-visited_nodes = depth_first_search(flappy_graph,'R', [])
-print("visited_nodes order: " , visited_nodes)
+def get_steps_by_frame(original_state):
+    flappy_graph = create_test_graph()
+    flappy_graph2 = generate_flappy_graph(original_state)
+    visited_nodes = depth_first_search(flappy_graph,'R', [])
+    print("visited_nodes order: " , visited_nodes)
+    return visited_nodes
