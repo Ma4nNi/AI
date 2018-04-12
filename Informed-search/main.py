@@ -32,7 +32,7 @@ graph = WeightedGraph(arad)
 
 #HERE WE SET ALL THE NEIGHBORS FOR EACH CITY BASED ON 
 graph.addNeighbors(arad, WeightedEdge(zerind,75), WeightedEdge(sibiu,140), WeightedEdge(timisoara,118))
-graph.addNeighbors(zerind, WeightedEdge(oradea,71))
+graph.addNeighbors(zerind, WeightedEdge(oradea,20))
 graph.addNeighbors(oradea, WeightedEdge(sibiu,151))
 graph.addNeighbors(sibiu,WeightedEdge(fagaras,99), WeightedEdge(rimnicuVilcea,80))
 graph.addNeighbors(fagaras, WeightedEdge(bucharest,211))
@@ -42,6 +42,7 @@ graph.addNeighbors(timisoara, WeightedEdge(lugoj,111))
 graph.addNeighbors(lugoj,WeightedEdge(mehadia,70))
 graph.addNeighbors(mehadia, WeightedEdge(drobeta,75))
 graph.addNeighbors(drobeta, WeightedEdge(craiova,120))
+graph.root = zerind 
 
 
 print("Greedy search: ",graph.greedySearch())
