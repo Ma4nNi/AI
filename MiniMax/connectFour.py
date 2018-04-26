@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import font
 import random
 import copy
+import operator
 class Info(Frame):
     def __init__(self, master=None):
         Frame.__init__(self)
@@ -51,7 +52,8 @@ class Terrain(Canvas):
         if self.perm:
             col = int(event.x/71)
             if(self.player==2):
-                col = minimax(self.p) #minimax returns the column in which to use our move
+                print("£££REEEDDDDD TUURRRNRNNNNNNNN$$$$$$\n\n")
+                col = minimax2(self.p)#minimax returns the column in which to use our move
             row = 0
             
             row = 0
@@ -86,33 +88,10 @@ class Terrain(Canvas):
                 info.t.config(text="Yellows turn")
                 self.colour = "yellow"
 
-def getScore(winTuple, currentColor): #wintuple is (bool, string)
-    if(winTuple[0]):
-        if(currentColor==winTuple[1]):
-            return 100
-        else:
-            return -100
-    return 0
-
-def minimax(matrix, level=0):
-    moves = {}
-    availableMoves = []
-    if(level==3):
-        return moves
-    for i in range(7): ##GET AVAILABLE MOVES WITH THIS LOOP- possible moves are a column from 0 to 6
-        if matrix[0][i].colour == "white":
-            availableMoves.append(i)
-    print(availableMoves)
-    for move in availableMoves:
-            print("new matrix")
-            newMatrix =  emulateMove(copyMatrix(matrix), move)
-    return random.choice(availableMoves) #possible moves are 0 to 7
-
-def emulateMove(newMatrix, move): ##THIS SHOULDONLY BE CALLED WITH THE COMPUTER MOVES
+def emulateMove(newMatrix, move, color): ##THIS SHOULDONLY BE CALLED WITH THE COMPUTER MOVES
     for row in range(len(newMatrix)-1,0,-1):
-        print("curent cell:",newMatrix[row][move].colour, row, move)
         if newMatrix[row][move].colour == "white":
-            newMatrix[row][move].colour = "red"
+            newMatrix[row][move].colour = color
             break
     return newMatrix
 
@@ -125,7 +104,6 @@ def copyMatrix(matrix):
     return newList
     
 def checkWinCondition(matrix):
-    amount = 0
     for row in matrix:#iterate over the rows
         hor = hasHorizontalWinCondition(row)
         if(hor[0]):
@@ -134,8 +112,8 @@ def checkWinCondition(matrix):
         ver = hasVerticalWinCondition(matrix,i)
         if(ver[0]):
             break
-    print("HORIZONTAL", hor)
-    print("VERTICAL", ver)
+    #print("HORIZONTAL", hor)
+    #print("VERTICAL", ver)
     return hor if hor[0] else (ver if ver[0] else hor)
 
 def hasVerticalWinCondition(matrix, columnNo):
@@ -194,6 +172,96 @@ def hasDiagonalWinCondition(grid): #TODO
     for row in range(0,2): # right diagonals
         grid[row]
     return False
+
+def getScore(winTuple, currentColor): #wintuple is (bool, string)
+    if(winTuple[0]):
+        if(currentColor==winTuple[1]):
+            return 10
+        else:
+            return -10
+    return 0
+
+def minimax2(matrix, player="red"):
+    availableMoves = []
+    for i in range(7): ##GET AVAILABLE MOVES WITH THIS LOOP- possible moves are a column from 0 to 6
+        if matrix[0][i].colour == "white":
+            availableMoves.append(i)
+    print("available:",availableMoves);
+    bestMoves = bestImmediateMoves(matrix,availableMoves, "red")
+    print("Bes red moves:",bestMoves)
+    moveDict = {}
+    for move in bestMoves[0]:
+        moveDict[move] = bestMoves[1]
+    print("First moveset: ",moveDict)
+    yellowMoves = []
+    maxYScore=0
+    for move in bestMoves[0]:
+        yellowMoves =[]
+        nMax= emulateMove(copyMatrix(matrix), move, "red")
+        newAvailables = []
+        for i in range(7): ##GET AVAILABLE MOVES WITH THIS LOOP- possible moves are a column from 0 to 6
+            if nMax[0][i].colour == "white":
+                newAvailables.append(i)
+        bestYellows = bestImmediateMoves(nMax,newAvailables,"yellow")
+        if(bestYellows[1] > maxYScore):
+            yellowMoves = bestYellows[0]
+            maxYScore = bestYellows[1]
+        elif(maxYScore==bestYellows[1]):
+            for mv in bestYellows[0]:
+                if(mv not in yellowMoves):
+                    yellowMoves.append(mv)
+        #print("Best Yellow moves for red:",bestYellows)
+    print("final yellows: ",yellowMoves)
+    for movimiento in yellowMoves:
+        if movimiento in moveDict.keys():
+            moveDict[movimiento] +=maxYScore
+        else:
+            moveDict[movimiento] = maxYScore
+    print("Final moveset",moveDict)
+    bestMoves = [k for k,v in moveDict.items() if v == max(moveDict.values())]
+    print("bestMoves",bestMoves)
+    return random.choice(bestMoves)
+
+def bestImmediateMoves(matrix, moves, color):
+    #print("available:",moves)
+    maxScore = 0
+    bestMoves = []
+    for move in moves:
+        currScore = getScore(checkWinCondition(emulateMove(copyMatrix(matrix), move, color)),color)
+        #print(currScore," for move",move)
+        if(currScore>maxScore):
+            bestMoves = [move]
+            maxScore=currScore
+        elif(currScore==maxScore):
+            bestMoves.append(move)
+    #print("BESTS",bestMoves)
+    return (bestMoves, maxScore)
+
+def minimax(matrix, player="red", level=0):
+    print("\t MINIMAX LEVEL:",level)
+    moves = {}
+    availableMoves = []
+    otherplayer = "yellow" if player=="red" else "red"
+    for i in range(7): ##GET AVAILABLE MOVES WITH THIS LOOP- possible moves are a column from 0 to 6
+        if matrix[0][i].colour == "white":
+            availableMoves.append(i)
+    print("DISPoNIBLES:",availableMoves)
+    for move in availableMoves:
+        print("\move: ",move)
+        newMatrix =  emulateMove(copyMatrix(matrix), move,"red")
+        moves[move] = getScore(checkWinCondition(newMatrix),player) 
+        if(level<2):
+            moves[move] +=  minimax(newMatrix,otherplayer, level+1)[1]
+    print(moves)
+    bestMove = 0
+    if player=="red":
+        bestMove = max(moves.items(), key=operator.itemgetter(1))[0]
+    else:
+        bestMove = min(moves.items(), key=operator.itemgetter(1))[0]
+    if(level==0):
+        print("MOVES",moves)
+        print("BESTMOV:",bestMove)
+    return (bestMove, moves[bestMove])  #possible moves are 0 to 7 and includes the score
 
 
 root = Tk()
